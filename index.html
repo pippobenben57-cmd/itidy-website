@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITIDY™ — 让生活回到纯粹</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #141f14;
+      --green-mid:   #1c2e1c;
+      --green-light: #233023;
+      --cream:       #f5f0e8;
+      --cream-dim:   #d8d0c0;
+      --gold:        #c9a96e;
+      --gold-light:  #e0c48a;
+      --white:       #ffffff;
+      --serif: 'Georgia', 'Times New Roman', serif;
+      --sans:  system-ui, -apple-system, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--green-dark);
+      color: var(--cream);
+      font-family: var(--serif);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--green-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 4rem;
+      background: linear-gradient(to bottom, rgba(20,31,20,0.95), transparent);
+      transition: background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(20,31,20,0.97);
+      border-bottom: 1px solid rgba(201,169,110,0.15);
+    }
+    .nav-logo {
+      font-size: 1.35rem;
+      letter-spacing: 0.35em;
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 400;
+    }
+    .nav-logo sup { font-size: 0.5em; letter-spacing: 0; vertical-align: super; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--cream-dim);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 8rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 70% 50%, rgba(40,60,30,0.6) 0%, transparent 70%),
+        linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, #1a2a15 100%);
+    }
+    .hero-lines {
+      position: absolute;
+      inset: 0;
+      opacity: 0.06;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 79px, var(--cream) 80px);
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 700px; }
+    .hero-label {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+    }
+    .hero-title {
+      font-size: clamp(4rem, 8vw, 8rem);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      margin-bottom: 2rem;
+    }
+    .hero-title sup { font-size: 0.25em; vertical-align: super; letter-spacing: 0; }
+    .hero-tagline {
+      font-size: 1.1rem;
+      color: var(--cream-dim);
+      margin-bottom: 0.5rem;
+    }
+    .hero-tagline-en {
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      margin-bottom: 3.5rem;
+    }
+    .hero-cta {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.5rem;
+      transition: all 0.3s;
+    }
+    .hero-cta:hover {
+      background: var(--gold);
+      color: var(--green-dark);
+    }
+    .hero-scents {
+      position: absolute;
+      right: 4rem;
+      bottom: 4rem;
+      text-align: right;
+      z-index: 2;
+    }
+    .hero-scents p {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      line-height: 2;
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .scroll-indicator span {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(201,169,110,0.6), transparent);
+      animation: scroll-pulse 2s ease-in-out infinite;
+    }
+    @keyframes scroll-pulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ── Section Base ── */
+    section { padding: 7rem 0; }
+    .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 4rem; }
+    .section-label {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    .section-title-en {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 3.5rem;
+    }
+    .gold-rule {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 2rem 0;
+    }
+
+    /* ── Brand Story ── */
+    #story { background: var(--green-mid); }
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .story-left { }
+    .story-pull {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      color: var(--white);
+      line-height: 1.4;
+      font-weight: 400;
+      margin-bottom: 2rem;
+    }
+    .story-body {
+      font-size: 0.95rem;
+      color: var(--cream-dim);
+      line-height: 1.9;
+      margin-bottom: 1.2rem;
+    }
+    .story-body em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .story-right { }
+    .story-pillars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .pillar {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 2rem 1.5rem;
+      transition: border-color 0.3s;
+    }
+    .pillar:hover { border-color: rgba(201,169,110,0.3); }
+    .pillar-en {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .pillar-cn {
+      font-size: 1.4rem;
+      color: var(--white);
+      margin-bottom: 0.8rem;
+    }
+    .pillar-desc {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.7;
+    }
+
+    /* ── Slogan ── */
+    #slogan {
+      background: var(--green-dark);
+      text-align: center;
+      padding: 6rem 0;
+    }
+    .slogan-main {
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      color: var(--white);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .slogan-en {
+      font-family: var(--sans);
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 3rem;
+    }
+    .slogan-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 4rem;
+    }
+    .slogan-card {
+      background: var(--green-mid);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 3rem 2rem;
+    }
+    .slogan-card-label {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .slogan-card-cn {
+      font-size: 1.3rem;
+      color: var(--white);
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+    .slogan-card-en {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      font-style: italic;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Scent Universe ── */
+    #scents { background: var(--green-dark); }
+    .scents-intro {
+      max-width: 580px;
+      margin-bottom: 5rem;
+    }
+    .scents-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .scent-card {
+      background: var(--green-mid);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s;
+      cursor: default;
+    }
+    .scent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+    .scent-card:hover::before { transform: scaleX(1); }
+    .scent-card:hover { background: rgba(40,60,30,0.8); }
+    .scent-origin {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+    .scent-name {
+      font-size: 1.5rem;
+      color: var(--white);
+      margin-bottom: 1.2rem;
+      font-weight: 400;
+    }
+    .scent-story {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+    .scent-quote {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      color: var(--gold);
+      font-style: italic;
+      border-left: 2px solid var(--gold);
+      padding-left: 1rem;
+    }
+    .scent-card.scent-next {
+      background: rgba(201,169,110,0.04);
+      border-color: rgba(201,169,110,0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .scent-next .scent-name { color: var(--gold); font-size: 1.2rem; }
+
+    /* ── Products ── */
+    #products { background: var(--green-mid); }
+    .products-intro {
+      max-width: 600px;
+      margin-bottom: 5rem;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+    .product-card {
+      background: rgba(20,31,20,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 3rem 2.5rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .product-card:hover { border-color: rgba(201,169,110,0.3); }
+    .product-tag {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .product-tag::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(201,169,110,0.25);
+    }
+    .product-name-cn {
+      font-size: 1.6rem;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+      font-weight: 400;
+    }
+    .product-name-en {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .product-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .product-features li {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+    .product-features li::before {
+      content: '—';
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .product-scents {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .scent-tag {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0.3rem 0.8rem;
+    }
+
+    /* ── Contact / Purchase ── */
+    #contact { background: var(--green-dark); }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .contact-left .section-title { font-size: clamp(2rem, 4vw, 3.5rem); }
+    .contact-left p {
+      font-size: 0.95rem;
+      color: var(--cream-dim);
+      line-height: 1.9;
+      margin-bottom: 2.5rem;
+    }
+    .contact-buttons { display: flex; flex-direction: column; gap: 1rem; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--green-dark);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-secondary {
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: var(--cream-dim);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .contact-right { }
+    .contact-info-card {
+      background: var(--green-mid);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 2.5rem;
+    }
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .info-value {
+      font-size: 0.95rem;
+      color: var(--cream);
+    }
+    .info-value-en {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--green-dark);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 3rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-size: 1.1rem;
+      letter-spacing: 0.35em;
+      color: var(--white);
+    }
+    .footer-tagline {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.25);
+      text-align: center;
+    }
+    .footer-copy {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── LMR Badge ── */
+    .lmr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: rgba(201,169,110,0.08);
+      border: 1px solid rgba(201,169,110,0.25);
+      padding: 0.7rem 1.2rem;
+      margin-top: 2rem;
+    }
+    .lmr-badge span {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+    }
+    .lmr-badge strong {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--gold-light);
+      font-weight: 400;
+    }
+
+    /* ── Reveal animation ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { gap: 1.5rem; }
+      #hero { padding: 0 2rem; }
+      .section-inner { padding: 0 2rem; }
+      .story-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .scents-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+      .slogan-cards { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .hero-scents { display: none; }
+      .story-pillars { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">ITIDY<sup>™</sup></a>
+  <ul class="nav-links">
+    <li><a href="#story">品牌 / Brand</a></li>
+    <li><a href="#scents">香气 / Scents</a></li>
+    <li><a href="#products">产品 / Products</a></li>
+    <li><a href="#contact">购买 / Shop</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-content">
+    <p class="hero-label">Essential-Oil Fragrance Lifestyle Brand · 精油香氛生活品牌</p>
+    <h1 class="hero-title">ITIDY<sup>™</sup></h1>
+    <p class="hero-tagline">让生活回到纯粹。</p>
+    <p class="hero-tagline-en">The Essence of Living · Every Drop Has a Story</p>
+    <a href="#story" class="hero-cta">探索品牌 / Explore</a>
+  </div>
+  <div class="hero-scents">
+    <p>Damascus Rose</p>
+    <p>Nile Jasmine</p>
+    <p>French Oak</p>
+    <p>Sicilian Orange</p>
+    <p>Chinese Magnolia</p>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── Brand Story ── -->
+<section id="story">
+  <div class="section-inner">
+    <div class="story-grid">
+      <div class="story-left reveal">
+        <p class="section-label">Section 01 · Brand Story</p>
+        <h2 class="section-title">品牌故事</h2>
+        <p class="section-title-en">让生活回到纯粹</p>
+        <p class="story-pull">"有些香气，你闻到，就懂了。"</p>
+        <div class="gold-rule"></div>
+        <p class="story-body">
+          ITIDY 只把一件事做到足够好——<em>让真正的精油香气，出现在你每天亲近的一切里。</em>
+        </p>
+        <p class="story-body">
+          我们相信，真正高级的生活，不是堆叠更多，而是回到本质。干净，应该是清透的；香气，应该是自然的；护理，应该是温和的；产品，应该是克制而好用的。
+        </p>
+        <p class="story-body">
+          玫瑰有玫瑰的清晨，茉莉有茉莉的夜晚，橡木有橡木的时间，甜橙有甜橙的阳光。<em>每一滴精油，都有出处。每一缕香气，都有故事。</em>
+        </p>
+        <div class="lmr-badge">
+          <strong>LMR</strong>
+          <span>Naturals by IFF · 引入顶级天然香原料 · 与全球典藏级香水同源</span>
+        </div>
+      </div>
+      <div class="story-right reveal reveal-delay-2">
+        <p class="section-label">Brand DNA · 品牌基因</p>
+        <div style="margin-bottom: 1.5rem;"></div>
+        <div class="story-pillars">
+          <div class="pillar">
+            <p class="pillar-en">Integrity</p>
+            <p class="pillar-cn">不妥协</p>
+            <p class="pillar-desc">活性物 30% 是底线，不是卖点。产地溯源是标配，不是营销。</p>
+          </div>
+          <div class="pillar">
+            <p class="pillar-en">Terroir</p>
+            <p class="pillar-cn">产地魂</p>
+            <p class="pillar-desc">每一款香型都有它的经纬度。产地是我们与竞品之间无法被复制的距离。</p>
+          </div>
+          <div class="pillar">
+            <p class="pillar-en">Intimacy</p>
+            <p class="pillar-cn">亲密感</p>
+            <p class="pillar-desc">洗涤是私密的仪式。从打开的瞬间到穿着时若有若无的气息，都是完整的感官体验。</p>
+          </div>
+          <div class="pillar">
+            <p class="pillar-en">Purity</p>
+            <p class="pillar-cn">回本质</p>
+            <p class="pillar-desc">把复杂的配方与香气结构留在产品背后，只把简单、柔软、安心和愉悦留给你。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Slogan ── -->
+<section id="slogan">
+  <div class="section-inner">
+    <div style="text-align:center;" class="reveal">
+      <p class="section-label">Section 02 · Brand Slogan</p>
+      <h2 class="slogan-main">每一滴，都有出处</h2>
+      <p class="slogan-en">Every Drop Has a Story</p>
+      <div class="gold-rule" style="margin: 0 auto;"></div>
+    </div>
+    <div class="slogan-cards">
+      <div class="slogan-card reveal reveal-delay-1">
+        <p class="slogan-card-label">Product · 产品主张</p>
+        <p class="slogan-card-cn">以天然精油为引<br>还原植物本真气息</p>
+        <p class="slogan-card-en">Not synthetic. Simply real.</p>
+      </div>
+      <div class="slogan-card reveal reveal-delay-2">
+        <p class="slogan-card-label">Craft · 工艺主张</p>
+        <p class="slogan-card-cn">把复杂留在背后<br>把简单留给你</p>
+        <p class="slogan-card-en">Complexity behind the scenes. Simplicity for you.</p>
+      </div>
+      <div class="slogan-card reveal reveal-delay-3">
+        <p class="slogan-card-label">Lifestyle · 生活主张</p>
+        <p class="slogan-card-cn">让生活<br>回到纯粹</p>
+        <p class="slogan-card-en">The essence of living.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Scent Universe ── -->
+<section id="scents">
+  <div class="section-inner">
+    <div class="scents-intro reveal">
+      <p class="section-label">Section 06 · Scent Universe</p>
+      <h2 class="section-title">五款香气</h2>
+      <p class="section-title-en">Five Scents · Five Ways of Living</p>
+      <p style="font-size:0.9rem; color:var(--cream-dim); line-height:1.9;">
+        ITIDY 的香气宇宙没有边界。每一款香型都有它的经纬度，都有一段真实的产地故事。
+      </p>
+    </div>
+    <div class="scents-grid">
+      <div class="scent-card reveal reveal-delay-1">
+        <p class="scent-origin">Turkey · 土耳其伊斯帕尔塔</p>
+        <h3 class="scent-name">大马士革玫瑰</h3>
+        <p class="scent-story">每年5月，还没有人声的清晨，花农已弯腰在玫瑰丛中。太阳出来，精油就开始挥发，所以必须须在那之前，把最珍贵的一刻收揽。它的香气不是扑鼻的喷洒，而是被风轻触才显现的气息。</p>
+        <p class="scent-quote">"有人会问你，用的是什么香水。"</p>
+      </div>
+      <div class="scent-card reveal reveal-delay-2">
+        <p class="scent-origin">Egypt · 埃及尼罗河三角洲</p>
+        <h3 class="scent-name">大花茉莉</h3>
+        <p class="scent-story">天亮前采，因为阳光会让精油逸走。这里的茉莉比其他产地更清透，没有甜腻感，是那种让人精神一振、又莫名安心的气息。洗完的衣服挂在阳台，风吹过来，是上一次洗衣的仪式感还没散去。</p>
+        <p class="scent-quote">"清透的人，不需要太浓的香气。"</p>
+      </div>
+      <div class="scent-card reveal reveal-delay-3">
+        <p class="scent-origin">France · 法国卢瓦尔河谷</p>
+        <h3 class="scent-name">夏栎橡木</h3>
+        <p class="scent-story">法国橡木，在湿润的森林中缓慢生长。时间让它沉淀出一种深邃而温暖的木质气息。不是那种需要刻意感受的香气，而是让人不自觉靠近的存在。</p>
+        <p class="scent-quote">"最好的气场，是让人靠近之后才发现的香气。"</p>
+      </div>
+      <div class="scent-card reveal reveal-delay-1">
+        <p class="scent-origin">Italy · 意大利西西里岛</p>
+        <h3 class="scent-name">西西里甜橙</h3>
+        <p class="scent-story">在地中海阳光下封存着果皮最鲜活的生机。不是超市里的那种甜，是你咬下去瞬间想起夏天的、带着阳光温度的气味。适合那些需要从日常里找到一点生动的人。</p>
+        <p class="scent-quote">"好心情，确实从这里来的。"</p>
+      </div>
+      <div class="scent-card reveal reveal-delay-2">
+        <p class="scent-origin">China · 中国广西</p>
+        <h3 class="scent-name">白玉兰</h3>
+        <p class="scent-story">花农在清晨六点采下洁白的花苞，留住最清脆跃动的透明气息。一种既古典又现代的中国香气，不张扬但有辨识度。这是 ITIDY 向中国原产地的致敬。</p>
+        <p class="scent-quote">"有些美，只有懂的人才知道它从哪里来。"</p>
+      </div>
+      <div class="scent-card scent-next reveal reveal-delay-3">
+        <p class="scent-origin">Coming Soon · 未完待续</p>
+        <h3 class="scent-name">下一个产地……</h3>
+        <p class="scent-story">ITIDY 的香气宇宙没有边界。我们正在寻找下一个值得被记录的产地，下一种值得被珍视的植物力量。</p>
+        <p class="scent-quote">"世界上还有很多值得闻到的地方。"</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Products ── -->
+<section id="products">
+  <div class="section-inner">
+    <div class="products-intro reveal">
+      <p class="section-label">Section 07 · Products</p>
+      <h2 class="section-title">产品系列</h2>
+      <p class="section-title-en">From Fabric to Skin to Space</p>
+      <p style="font-size:0.9rem; color:var(--cream-dim); line-height:1.9;">
+        以 IFF LMR 精油为技术信仰。香气是主调，洁净是配套能力。三个阶段，从织物，到肌肤，到空间。
+      </p>
+    </div>
+    <div class="products-grid">
+      <div class="product-card reveal reveal-delay-1">
+        <p class="product-tag">织物香氛 · 01</p>
+        <h3 class="product-name-cn">精油香氛洗衣原液</h3>
+        <p class="product-name-en">Essential Oil Perfume Laundry Detergent</p>
+        <ul class="product-features">
+          <li>LMR 全球珍稀精油溯源，与典藏级香水同源</li>
+          <li>48小时体感留香，IFF 香气复刻鲜凝技术</li>
+          <li>活性物含量超 30%，行业标准的 2 倍</li>
+        </ul>
+        <div class="product-scents">
+          <span class="scent-tag">玫瑰与白檀</span>
+          <span class="scent-tag">茉莉与玉兰</span>
+          <span class="scent-tag">橡木与雪松</span>
+          <span class="scent-tag">甜橙与茉莉</span>
+          <span class="scent-tag">白兰与抹茶</span>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-2">
+        <p class="product-tag">织物香氛 · 01</p>
+        <h3 class="product-name-cn">精油香氛留香珠</h3>
+        <p class="product-name-en">Essential Oil Laundry Scent Booster</p>
+        <ul class="product-features">
+          <li>土耳其大马士革玫瑰 · 衣柜打开那一刻，是整个玫瑰园的清晨</li>
+          <li>埃及大花茉莉 · 180天留香，每次走动轻轻释放</li>
+          <li>法国夏栎橡木 · 低沉香调，适合正式场合的衣物</li>
+        </ul>
+        <div class="product-scents">
+          <span class="scent-tag">Damascus Rose</span>
+          <span class="scent-tag">Nile Jasmine</span>
+          <span class="scent-tag">French Oak</span>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-3">
+        <p class="product-tag">专效系列 · Special</p>
+        <h3 class="product-name-cn">白衣专洗浓缩液</h3>
+        <p class="product-name-en">Concentrated Laundry Detergent for White Garments</p>
+        <ul class="product-features">
+          <li>活性物含量 ≥55%，行标 3.5 倍活性物</li>
+          <li>连洗3次去除白衣发黄，3重焕白因子</li>
+          <li>母婴级温和配方，符合母婴衣物洗涤标准</li>
+        </ul>
+        <div class="product-scents">
+          <span class="scent-tag">甜橙与茉莉</span>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-4">
+        <p class="product-tag">专效系列 · Special</p>
+        <h3 class="product-name-cn">全效净护浓缩液</h3>
+        <p class="product-name-en">All-Purpose Concentrated Laundry Detergent</p>
+        <ul class="product-features">
+          <li>活性物含量 ≥55%，轻松应对各类日常污渍</li>
+          <li>9重天然酶素，精细化溶解各类顽渍</li>
+          <li>支持15分钟快洗，水感低泡易冲洗</li>
+        </ul>
+        <div class="product-scents">
+          <span class="scent-tag">白兰与抹茶</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ── -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="contact-left reveal">
+        <p class="section-label">Section · Shop</p>
+        <h2 class="section-title">开始你的<br>精油生活</h2>
+        <p class="section-title-en">Begin Your Essential Oil Journey</p>
+        <p>在天猫旗舰店发现完整产品系列，或通过私域会员体系获得专属香气顾问服务。</p>
+        <p>我们也为企业礼品采购、婚庆伴手礼提供定制服务——因为有些礼物，是会被反复想起的。</p>
+        <div class="contact-buttons">
+          <a href="#" class="btn-primary">天猫旗舰店 / Tmall Flagship</a>
+          <a href="#" class="btn-secondary">企业礼品定制 / Corporate Gifting</a>
+        </div>
+      </div>
+      <div class="contact-right reveal reveal-delay-2">
+        <div class="contact-info-card">
+          <div class="info-row">
+            <span class="info-label">Brand</span>
+            <span class="info-value">ITIDY™ 精油香氛生活品牌</span>
+            <span class="info-value-en">Essential-Oil Fragrance Lifestyle Brand</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Technology</span>
+            <span class="info-value">IFF LMR 天然香原料认证</span>
+            <span class="info-value-en">Laboratoire Monique Rémy · by IFF</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Channel · 渠道</span>
+            <span class="info-value">天猫旗舰店 · 抖音 · 小红书</span>
+            <span class="info-value-en">Tmall · Douyin · Xiaohongshu</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Gifting · 礼品</span>
+            <span class="info-value">企业年终礼品 · 婚庆伴手礼 · 生日礼物</span>
+            <span class="info-value-en">Corporate · Wedding · Personal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-logo">ITIDY<sup style="font-size:0.5em;vertical-align:super;">™</sup></div>
+  <div class="footer-tagline">
+    让生活回到纯粹 · The Essence of Living<br>
+    <span style="font-size:0.55rem; letter-spacing:0.15em;">Every drop has a story.</span>
+  </div>
+  <div class="footer-copy">© 2024 ITIDY™. All Rights Reserved.</div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+  reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
